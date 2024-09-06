@@ -1,0 +1,34 @@
+-- CreateTable
+CREATE TABLE `Level` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(32) NOT NULL,
+    `grid` JSON NOT NULL,
+    `difficulty` TINYINT NOT NULL DEFAULT 2,
+    `size` VARCHAR(8) NOT NULL,
+    `authorId` BIGINT NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `deletedAt` DATETIME(3) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Score` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `time` INTEGER NOT NULL,
+    `levelId` INTEGER NOT NULL,
+    `userId` BIGINT NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Level` ADD CONSTRAINT `Level_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Score` ADD CONSTRAINT `Score_levelId_fkey` FOREIGN KEY (`levelId`) REFERENCES `Level`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Score` ADD CONSTRAINT `Score_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
