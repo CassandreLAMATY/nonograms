@@ -1,3 +1,3 @@
-import { Level } from "./nongrams/Level";
+import { Level } from "./nonograms/Level";
 
 export { Level };
