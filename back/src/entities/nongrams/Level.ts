@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
 
-import { IHandleError } from '../interfaces/utils';
-import type { RawLevel } from "../types";
+import { IHandleError } from '../../interfaces/utils';
+import type { RawLevel } from "../../types";
 
 export class Level {
     private handleError: IHandleError;
