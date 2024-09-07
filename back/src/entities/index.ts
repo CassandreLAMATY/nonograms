@@ -1,3 +1,11 @@
-import { Level } from "./nonograms/Level";
+import { User } from "./User";
 
-export { Level };
+import { Nonogram_Level } from "./nonogram/Nonogram_Level";
+import { Nonogram_User } from "./nonogram/Nonogram_User";
+
+export { 
+    User,
+
+    Nonogram_Level,
+    Nonogram_User
+};

@@ -1,11 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
 
+import { INonogram_Level } from '../../interfaces/entities';
 import { IHandleError } from '../../interfaces/utils';
 import type { RawLevel } from "../../types";
 
-export class Level {
+export class Nonogram_Level implements INonogram_Level {
     private handleError: IHandleError;
+
     private id?: number;
     private name: string;
     private grid: number[][];
@@ -175,6 +177,33 @@ export class Level {
             this.handleError.handle({
                 file: "Level",
                 fn: "delete",
+                error: e
+            });
+        }
+    }
+
+
+
+    /**
+     * Save the score of a user for the level
+     * @param {number} userId The ID of the user who completed the level
+     * @param {number} time The time it took the user to complete the level 
+     */
+    public async saveScore(userId: number, time: number): Promise<void> {
+        try {
+            if(!this.id) throw new Error("Cannot save a score without a level ID");
+
+            await prisma.score.create({
+                data: {
+                    userId: userId,
+                    levelId: this.id!,
+                    time: time
+                }
+            });
+        } catch(e: unknown) {
+            this.handleError.handle({
+                file: "Level",
+                fn: "saveScore",
                 error: e
             });
         }
