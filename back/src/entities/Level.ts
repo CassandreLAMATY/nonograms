@@ -1,9 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
 
+import { IHandleError } from '../interfaces/utils';
 import type { RawLevel } from "../types";
 
 export class Level {
+    private handleError: IHandleError;
     private id?: number;
     private name: string;
     private grid: number[][];
@@ -14,7 +16,9 @@ export class Level {
     private updatedAt?: Date;
     private deletedAt?: Date;
 
-    constructor(level: RawLevel) {
+    constructor(level: RawLevel, handleError: IHandleError) {
+        this.handleError = handleError;
+
         // Required fields validation
         if(!level.name) throw new Error("Level name is required");
         if(!level.grid) throw new Error("Level grid is required");
@@ -91,7 +95,11 @@ export class Level {
                 }
             });
         } catch(e: unknown) {
-
+            this.handleError.handle({
+                file: "Level",
+                fn: "save",
+                error: e
+            });
         }
     }
 
@@ -117,7 +125,11 @@ export class Level {
                 }
             });
         } catch(e: unknown) {
-
+            this.handleError.handle({
+                file: "Level",
+                fn: "update",
+                error: e
+            });
         }
     }
 
@@ -137,7 +149,12 @@ export class Level {
                 data: fields
             });
         } catch(e: unknown) {
-
+            this.handleError.handle({
+                file: "Level",
+                fn: "save",
+                message: "fields value: " + JSON.stringify(fields),
+                error: e
+            });
         }
     }
 
@@ -155,7 +172,11 @@ export class Level {
                 where: { id: this.id! }
             });
         } catch(e: unknown) {
-
+            this.handleError.handle({
+                file: "Level",
+                fn: "delete",
+                error: e
+            });
         }
     }
 }
