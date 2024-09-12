@@ -1,18 +1,15 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
 
-import { INonogram_User } from '../../interfaces/entities';
-import { IHandleError } from '../../interfaces/utils';
-import { User } from "../";
+import { HandleError } from '../../utils/HandleError';
+
+import { IUser } from '../../interfaces/entities/nonogram';
+import { AbstractUser } from "../";
 import type { RawUser, RawScore } from "../../types";
 
-export class Nonogram_User extends User implements INonogram_User {
-    private handleError: IHandleError;
-
-    constructor(user: RawUser, handleError: IHandleError) {
+export class User extends AbstractUser implements IUser {
+    constructor(user: RawUser) {
         super(user);
-
-        this.handleError = handleError;
     }
 
 
@@ -32,8 +29,8 @@ export class Nonogram_User extends User implements INonogram_User {
                 orderBy: { time: 'asc' }
             });
         } catch(e: unknown) {
-            this.handleError.handle({
-                file: "Nonogram_User",
+            HandleError.handle({
+                file: "User",
                 fn: "getScoresByLevelId",
                 error: e
             });

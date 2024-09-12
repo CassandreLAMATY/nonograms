@@ -1,30 +1,27 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
 
-import { INonogram_Level } from '../../interfaces/entities';
-import { IHandleError } from '../../interfaces/utils';
-import type { RawLevel } from "../../types";
+import { HandleError } from '../../utils/HandleError';
 
-export class Nonogram_Level implements INonogram_Level {
-    private handleError: IHandleError;
+import { ILevel } from '../../interfaces/entities/nonogram';
+import { Score } from '.';
+import type { FormattedLevel, RawLevel } from "../../types";
 
+export class Level implements ILevel {
     private id?: number;
     private name: string;
     private grid: number[][];
-    private difficulty: number;
     private size: string;
-    private authorId?: number;
+    private authorId?: bigint;
     private createdAt?: Date;
     private updatedAt?: Date;
     private deletedAt?: Date;
+    private scores?: Score[];
 
-    constructor(level: RawLevel, handleError: IHandleError) {
-        this.handleError = handleError;
-
+    constructor(level: RawLevel) {
         // Required fields validation
         if(!level.name) throw new Error("Level name is required");
         if(!level.grid) throw new Error("Level grid is required");
-        if(!level.difficulty) throw new Error("Level difficulty is required");
 
         // Grid validation
         if(level.grid.length === 0) 
@@ -43,7 +40,6 @@ export class Nonogram_Level implements INonogram_Level {
         // Required fields
         this.name = level.name!;
         this.grid = level.grid!;
-        this.difficulty = level.difficulty!;
 
         if(!level.size) {
             this.size = `${this.grid.length}x${this.grid[0].length}`;
@@ -62,20 +58,30 @@ export class Nonogram_Level implements INonogram_Level {
 
 
     /**
+     * Set scores for the level
+     * @param {Score[]} score List of scores for the level
+     */
+    public setScores(score: Score[]): void {
+        this.scores = score;
+    }
+
+
+
+    /**
      * Get the properties of the level
      * @returns {RawLevel} The properties of the level
      */
-    public getProperties(): RawLevel {
+    public getProperties(): FormattedLevel {
         return {
             id: this.id,
             name: this.name,
             grid: this.grid,
             size: this.size,
-            difficulty: this.difficulty,
             authorId: this.authorId,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
-            deletedAt: this.deletedAt
+            deletedAt: this.deletedAt,
+            scores: this.scores?.map(s => s.getProperties())
         }
     }
 
@@ -91,13 +97,12 @@ export class Nonogram_Level implements INonogram_Level {
                 data: {
                     name: this.name,
                     grid: this.grid,
-                    difficulty: this.difficulty,
                     size: this.size,
                     authorId: this.authorId
                 }
             });
         } catch(e: unknown) {
-            this.handleError.handle({
+            HandleError.handle({
                 file: "Level",
                 fn: "save",
                 error: e
@@ -120,14 +125,13 @@ export class Nonogram_Level implements INonogram_Level {
                 data: {
                     name: this.name,
                     grid: this.grid,
-                    difficulty: this.difficulty,
                     size: this.size,
                     authorId: this.authorId,
                     deletedAt: this.deletedAt
                 }
             });
         } catch(e: unknown) {
-            this.handleError.handle({
+            HandleError.handle({
                 file: "Level",
                 fn: "update",
                 error: e
@@ -151,7 +155,7 @@ export class Nonogram_Level implements INonogram_Level {
                 data: fields
             });
         } catch(e: unknown) {
-            this.handleError.handle({
+            HandleError.handle({
                 file: "Level",
                 fn: "save",
                 message: "fields value: " + JSON.stringify(fields),
@@ -174,7 +178,7 @@ export class Nonogram_Level implements INonogram_Level {
                 where: { id: this.id! }
             });
         } catch(e: unknown) {
-            this.handleError.handle({
+            HandleError.handle({
                 file: "Level",
                 fn: "delete",
                 error: e
@@ -201,7 +205,7 @@ export class Nonogram_Level implements INonogram_Level {
                 }
             });
         } catch(e: unknown) {
-            this.handleError.handle({
+            HandleError.handle({
                 file: "Level",
                 fn: "saveScore",
                 error: e

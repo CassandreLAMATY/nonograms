@@ -22,7 +22,6 @@ model Level {
   id         Int @id @default(autoincrement())
   name       String @db.VarChar(32)
   grid       Json
-  difficulty Int @db.TinyInt @default(2)
   size       String @db.VarChar(8)
   author     User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
   authorId   BigInt?

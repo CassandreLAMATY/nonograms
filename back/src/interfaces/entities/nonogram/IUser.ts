@@ -1,3 +1,3 @@
-export interface INonogram_User {
+export interface IUser {
     getScoresByLevelId(levelId: number): Promise<any>;
 }

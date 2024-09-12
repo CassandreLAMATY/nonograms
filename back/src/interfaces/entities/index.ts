@@ -1,7 +1,3 @@
-import { INonogram_User } from "./nonogram/INonogram_User";
-import { INonogram_Level } from "./nonogram/INonogram_Level";
+import { IAbstractUser } from "./IAbstractUser";
 
-export {
-    INonogram_User,
-    INonogram_Level
-}
+export { IAbstractUser };

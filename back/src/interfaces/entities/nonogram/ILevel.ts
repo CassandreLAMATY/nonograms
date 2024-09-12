@@ -1,7 +1,7 @@
-import type { RawLevel } from "../../../types";
+import type { RawLevel, FormattedLevel } from "../../../types";
 
-export interface INonogram_Level {
-    getProperties(): RawLevel;
+export interface ILevel {
+    getProperties(): FormattedLevel;
     save(): Promise<void>;
     update(): Promise<void>;
     updateFields(fields: Partial<RawLevel>): Promise<void>;

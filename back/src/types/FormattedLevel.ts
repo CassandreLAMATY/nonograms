@@ -1,4 +1,6 @@
-export type RawLevel = {
+import { RawScore } from "./";
+
+export type FormattedLevel = {
     id?: number;
     name?: string;
     grid?: number[][];
@@ -8,4 +10,5 @@ export type RawLevel = {
     createdAt?: Date;
     updatedAt?: Date;
     deletedAt?: Date;
+    scores?: RawScore[];
 }
