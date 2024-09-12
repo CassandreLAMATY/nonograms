@@ -13,11 +13,16 @@ jest.mock('@prisma/client', () => {
     score: {
       create: jest.fn(),
     },
+    $disconnect: jest.fn(),
   };
   return { PrismaClient: jest.fn(() => mPrismaClient) };
 });
 
 const prisma = new PrismaClient();
+
+afterAll(() => {
+  prisma.$disconnect();
+});
 
 describe('Level Class', () => {
   const rawLevel: RawLevel = {

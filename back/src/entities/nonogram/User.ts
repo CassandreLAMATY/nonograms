@@ -15,6 +15,16 @@ export class User extends AbstractUser implements IUser {
 
 
     /**
+     * Returns the ID of the user
+     * @returns {bigint} ID of the user
+     */
+    public getId(): bigint {
+        return this.id;
+    }
+
+
+
+    /**
      * Returns the scores of the user for a specific level from best time to worst
      * @param {number} levelId ID of the level
      * @returns {Promise<RawScore[]>} Scores of the user for the level

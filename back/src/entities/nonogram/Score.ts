@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 import { IScore } from '../../interfaces/entities/nonogram';
 import { RawScore } from '../../types';
+import { HandleError } from '../../utils/HandleError';
 
 export class Score implements IScore {
     private id?: number;
@@ -61,7 +62,11 @@ export class Score implements IScore {
                 }
             });
         } catch(e: unknown) {
-            throw e;
+            HandleError.handle({
+                file: "Score",
+                fn: "save",
+                error: e
+            });
         }
     }
 
@@ -72,14 +77,19 @@ export class Score implements IScore {
      * @returns {Promise<void>}
      */
     public async delete(): Promise<void> {
-        try {
-            if(!this.id) throw new Error("Cannot delete a score without an ID");
+        if (!this.id)
+            throw new Error("Cannot delete a score without an ID");
 
+        try {
             await prisma.score.delete({
                 where: { id: this.id }
             });
-        } catch(e: unknown) {
-            throw e;
+        } catch (e: unknown) {
+            HandleError.handle({
+                file: "Score",
+                fn: "delete",
+                error: e
+            });
         }
     }
 }
