@@ -18,7 +18,7 @@ export class User extends AbstractUser implements IUser {
      * Returns the ID of the user
      * @returns {bigint} ID of the user
      */
-    public getId(): bigint {
+    public getId(): string {
         return this.id;
     }
 

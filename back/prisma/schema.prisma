@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id        BigInt @id
+  id        String @unique(map: "userid") @db.VarChar(32)
   username  String @unique(map: "username") @db.VarChar(32)
   avatar    String @db.VarChar(32)
   createdAt DateTime @default(now())
@@ -24,7 +24,7 @@ model Level {
   grid       Json
   size       String @db.VarChar(8)
   author     User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  authorId   BigInt?
+  authorId   String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   deletedAt  DateTime?
@@ -37,6 +37,6 @@ model Score {
   level     Level @relation(fields: [levelId], references: [id])
   levelId   Int
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    BigInt
+  userId    String
   createdAt DateTime @default(now())
 }

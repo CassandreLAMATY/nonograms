@@ -1,12 +1,13 @@
 import { RawScore } from "./";
+import { Cell } from "./nonogram";
 
 export type FormattedLevel = {
     id?: number;
     name?: string;
-    grid?: number[][];
+    grid?: Cell[][];
     size?: string;
     difficulty?: number;
-    authorId?: bigint;
+    authorId?: string;
     createdAt?: Date;
     updatedAt?: Date;
     deletedAt?: Date;

@@ -1,7 +1,7 @@
 import type { RawUser } from "../types";
 
 export abstract class AbstractUser {
-    protected id: bigint;
+    protected id: string;
     protected username: string;
     protected avatar?: string;
     protected createdAt?: Date;

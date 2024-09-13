@@ -1,75 +1,107 @@
-import { PrismaClient } from '@prisma/client';
 import { User } from './User';
-import { RawUser, RawScore } from '../../types';
+import { PrismaClient } from '@prisma/client';
 import { HandleError } from '../../utils/HandleError';
+import { RawUser, RawScore } from '../../types';
 
-// Mock Prisma Client
 jest.mock('@prisma/client', () => {
   const mPrismaClient = {
     score: {
       findMany: jest.fn(),
     },
-    $disconnect: jest.fn(),
   };
-  return { PrismaClient: jest.fn(() => mPrismaClient) };
+  return {
+    PrismaClient: jest.fn(() => mPrismaClient),
+  };
 });
 
-// Mock HandleError
 jest.mock('../../utils/HandleError', () => ({
   HandleError: {
     handle: jest.fn(),
   },
 }));
 
-const prisma = new PrismaClient();
+describe('User', () => {
+  let mockPrismaClient: any;
+  let handleErrorMock: jest.Mock;
 
-afterAll(() => {
-    prisma.$disconnect();
+  beforeEach(() => {
+    mockPrismaClient = new PrismaClient();
+    handleErrorMock = HandleError.handle as jest.Mock;
   });
-  
 
-describe('User Class', () => {
-  const rawUser: RawUser = {
-    id: BigInt(1),
-    username: 'TestUser',
-    avatar: 'avatar.png',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-  it('should create a User instance', () => {
-    const user = new User(rawUser);
+  test('should create User instance when valid data is provided', () => {
+    const userData: RawUser = {
+      id: 'user1',
+      username: 'TestUser',
+      avatar: 'avatar.png',
+    };
+    const user = new User(userData);
     expect(user).toBeInstanceOf(User);
-    expect(user.getId()).toBe(BigInt(1));
   });
 
-  it('should return scores for a specific level', async () => {
-    const user = new User(rawUser);
-    const mockScores: RawScore[] = [
-      { id: 1, time: 100, userId: BigInt(1), levelid: 1 },
-      { id: 2, time: 200, userId: BigInt(1), levelid: 1 },
-    ];
-    (prisma.score.findMany as jest.Mock).mockResolvedValue(mockScores);
+  test('should return user ID', () => {
+    const userData: RawUser = {
+      id: 'user1',
+      username: 'TestUser',
+      avatar: 'avatar.png',
+    };
+    const user = new User(userData);
+    expect(user.getId()).toBe('user1');
+  });
 
-    const scores = await user.getScoresByLevelId(1);
-    expect(scores).toEqual(mockScores);
-    expect(prisma.score.findMany).toHaveBeenCalledWith({
-      where: { levelId: 1, userId: BigInt(1) },
+  test('should return scores for a level', async () => {
+    const userData: RawUser = {
+      id: 'user1',
+      username: 'TestUser',
+      avatar: 'avatar.png',
+    };
+    const user = new User(userData);
+    const levelId = 1;
+
+    const mockScores: RawScore[] = [
+      { id: 1, userId: 'user1', levelId: 1, time: 100 },
+      { id: 2, userId: 'user1', levelId: 1, time: 120 },
+    ];
+
+    mockPrismaClient.score.findMany.mockResolvedValue(mockScores);
+
+    const scores = await user.getScoresByLevelId(levelId);
+
+    expect(mockPrismaClient.score.findMany).toHaveBeenCalledWith({
+      where: {
+        levelId: levelId,
+        userId: 'user1',
+      },
       orderBy: { time: 'asc' },
     });
+
+    expect(scores).toEqual(mockScores);
   });
 
-  it('should handle errors when getting scores', async () => {
-    const user = new User(rawUser);
-    const mockError = new Error('Database error');
-    (prisma.score.findMany as jest.Mock).mockRejectedValue(mockError);
+  test('should handle error when getting scores', async () => {
+    const userData: RawUser = {
+      id: 'user1',
+      username: 'TestUser',
+      avatar: 'avatar.png',
+    };
+    const user = new User(userData);
+    const levelId = 1;
 
-    const scores = await user.getScoresByLevelId(1);
-    expect(scores).toEqual([]);
-    expect(HandleError.handle).toHaveBeenCalledWith({
+    const error = new Error('Database error');
+    mockPrismaClient.score.findMany.mockRejectedValue(error);
+
+    const scores = await user.getScoresByLevelId(levelId);
+
+    expect(handleErrorMock).toHaveBeenCalledWith({
       file: 'User',
       fn: 'getScoresByLevelId',
-      error: mockError,
+      error,
     });
+
+    expect(scores).toEqual([]);
   });
 });

@@ -1,10 +1,12 @@
+import { Cell } from "./nonogram";
+
 export type RawLevel = {
     id?: number;
     name?: string;
-    grid?: number[][];
+    grid?: Cell[][];
     size?: string;
     difficulty?: number;
-    authorId?: bigint;
+    authorId?: string;
     createdAt?: Date;
     updatedAt?: Date;
     deletedAt?: Date;

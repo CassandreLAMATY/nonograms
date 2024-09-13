@@ -1,7 +1,7 @@
 export type RawScore = {
     id?: number;
-    userId?: bigint;
-    levelid?: number;
+    userId?: string;
+    levelId?: number;
     time?: number;
     createdAt?: Date;
 }

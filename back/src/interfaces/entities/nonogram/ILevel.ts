@@ -6,5 +6,5 @@ export interface ILevel {
     update(): Promise<void>;
     updateFields(fields: Partial<RawLevel>): Promise<void>;
     delete(): Promise<void>;
-    saveScore(userId: number, time: number): Promise<void>;
+    saveScore(userId: string, time: number): Promise<void>;
 }

@@ -6,13 +6,14 @@ import { HandleError } from '../../utils/HandleError';
 import { ILevel } from '../../interfaces/entities/nonogram';
 import { Score } from '.';
 import type { FormattedLevel, RawLevel } from "../../types";
+import type { Cell } from '../../types/nonogram';
 
 export class Level implements ILevel {
     private id?: number;
     private name: string;
-    private grid: number[][];
+    private grid: Cell[][];
     private size: string;
-    private authorId?: bigint;
+    private authorId?: string;
     private createdAt?: Date;
     private updatedAt?: Date;
     private deletedAt?: Date;
@@ -33,7 +34,7 @@ export class Level implements ILevel {
         if(level.grid.some(row => row.length !== level.grid![0].length)) 
             throw new Error("Level grid must have the same number of columns in each row");
 
-        if(level.grid.some(row => row.some(cell => ![0, 1, 2].includes(cell))) )
+        if(level.grid.some(row => row.some(cell => ![0, 1, 2].includes(cell.status))))
             throw new Error(`Level grid contains invalid values`);
 
 
@@ -190,10 +191,10 @@ export class Level implements ILevel {
 
     /**
      * Save the score of a user for the level
-     * @param {number} userId The ID of the user who completed the level
+     * @param {string} userId The ID of the user who completed the level
      * @param {number} time The time it took the user to complete the level 
      */
-    public async saveScore(userId: number, time: number): Promise<void> {
+    public async saveScore(userId: string, time: number): Promise<void> {
         try {
             if(!this.id) throw new Error("Cannot save a score without a level ID");
 

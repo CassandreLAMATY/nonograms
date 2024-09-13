@@ -47,7 +47,7 @@ export class LevelRepository implements ILevelRepository {
             id: score.id,
             time: score.time,
             userId: score.userId,
-            levelid: score.levelid,
+            levelId: score.levelId,
             createdAt: score.createdAt
         });
     }

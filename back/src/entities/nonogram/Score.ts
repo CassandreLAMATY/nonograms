@@ -8,7 +8,7 @@ import { HandleError } from '../../utils/HandleError';
 export class Score implements IScore {
     private id?: number;
     private time: number;
-    private userId: bigint;
+    private userId: string;
     private levelId: number;
     private createdAt?: Date;
 
@@ -18,12 +18,12 @@ export class Score implements IScore {
         // Required fields validation
         if(!score.time) throw new Error("Score time is required");
         if(!score.userId) throw new Error("Score userId is required");
-        if(!score.levelid) throw new Error("Score levelId is required");
+        if(!score.levelId) throw new Error("Score levelId is required");
 
         // Required fields
         this.time = score.time!;
         this.userId = score.userId!;
-        this.levelId = score.levelid!;
+        this.levelId = score.levelId!;
 
         // Optional fields
         this.id = score.id;
@@ -41,7 +41,7 @@ export class Score implements IScore {
             id: this.id,
             time: this.time,
             userId: this.userId,
-            levelid: this.levelId,
+            levelId: this.levelId,
             createdAt: this.createdAt
         }
     }

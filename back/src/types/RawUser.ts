@@ -1,5 +1,5 @@
 export type RawUser = {
-    id?: bigint;
+    id?: string;
     username?: string;
     avatar?: string;
     createdAt?: Date;

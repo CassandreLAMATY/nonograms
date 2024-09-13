@@ -7,7 +7,7 @@ export type DBLevel = {
     grid?: JsonValue;
     size?: string;
     difficulty?: number;
-    authorId?: bigint;
+    authorId?: string;
     createdAt?: Date;
     updatedAt?: Date;
     deletedAt?: Date;
