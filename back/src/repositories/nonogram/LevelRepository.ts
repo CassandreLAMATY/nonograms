@@ -7,6 +7,7 @@ import { HandleError } from "../../utils/HandleError";
 import { nonogramVariables } from "../../variables";
 import { ILevelRepository } from '../../interfaces/repositories/nonogram';
 import type { DBLevel, RawScore } from '../../types';
+import { Cell } from '../../types/nonogram';
 
 
 export type Filters = {
@@ -16,6 +17,22 @@ export type Filters = {
 };
 
 export class LevelRepository implements ILevelRepository {
+    /**
+     * Check if a cell is valid
+     * @param {any} cell
+     * @returns 
+     */
+    private isValidCell(cell: any): cell is Cell {
+        if (typeof cell !== "object" || cell === null) return false;
+        if (!("status" in cell) || typeof cell.status !== "number" || ![0, 1, 2].includes(cell.status)) return false;
+        if ("color" in cell && typeof cell.color !== "string") return false;
+        if (Object.keys(cell).length > 2) return false;
+
+        return true;
+    }
+
+
+
     /**
      * Check if a grid is valid
      * @param {JsonValue} grid 
@@ -28,8 +45,7 @@ export class LevelRepository implements ILevelRepository {
             if(!Array.isArray(row)) return false;
 
             for(const cell of row) {
-                if(!cell || typeof cell !== "object") return false;
-                if(!cell.hasOwnProperty("status")) return false;
+                if(!this.isValidCell(cell)) return false;
             }
         }
 
@@ -66,7 +82,7 @@ export class LevelRepository implements ILevelRepository {
         const formattedLevel: Level = new Level({
             id: level.id,
             name: level.name,
-            grid: level.grid as number[][],
+            grid: level.grid as Cell[][],
             size: level.size,
             authorId: level.authorId,
             createdAt: level.createdAt,
@@ -84,13 +100,14 @@ export class LevelRepository implements ILevelRepository {
     }
 
 
+    
     /**
      * Get levels based on filters
      * @param {Filters} filters 
-     * @param {number} userId 
+     * @param {string} userId 
      * @returns {Promise<Level[]>} Levels
      */
-    public async getLevels(filters: Filters, userId: bigint | null): Promise<Level[]> {
+    public async getLevels(filters: Filters, userId: string | null): Promise<Level[]> {
         try {
             const { page, size, isCompleted } = filters;
 
