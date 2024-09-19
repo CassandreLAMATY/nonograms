@@ -10,7 +10,7 @@ datasource db {
 model User {
   id        String @unique(map: "userid") @db.VarChar(32)
   username  String @unique(map: "username") @db.VarChar(32)
-  avatar    String @db.VarChar(32)
+  avatar    String? @db.VarChar(32)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
