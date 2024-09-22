@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "node dist/app.js",
-    "dev": "cross-env NODE_ENV=DEV ts-node-dev --respawn --pretty --transpile-only src/app.ts",
+    "dev": "cross-env NODE_ENV=DEV DOTENV_CONFIG_PATH=.env.local ts-node-dev --respawn --pretty --transpile-only src/app.ts",
     "build": "tsc",
     "test:single": "jest --",
     "test": "jest"

@@ -12,7 +12,7 @@ model User {
   username  String @unique(map: "username") @db.VarChar(32)
   avatar    String? @db.VarChar(32)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime? @updatedAt
   deletedAt DateTime?
   levels    Level[]
   scores    Score[]
@@ -26,7 +26,7 @@ model Level {
   author     User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
   authorId   String?
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime? @updatedAt
   deletedAt  DateTime?
   scores     Score[]
 }

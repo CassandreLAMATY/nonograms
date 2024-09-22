@@ -1,9 +1,13 @@
+import { INonogramController } from "../interfaces/controllers";
 import { Routes } from "./";
 import { Request, Response } from "express";
 
 export class NonogramRoutes extends Routes {
-    constructor() {
+    private nonogramController: INonogramController;
+
+    constructor(nonogramController: INonogramController) {
         super();
+        this.nonogramController = nonogramController;
 
         this.initializeRoutes();
     }
@@ -18,22 +22,15 @@ export class NonogramRoutes extends Routes {
             }
         );
 
-        // Get level by id
-        // If body contains a user id, return the user's progress
-        this.router.post(
-            '/levels/:id',
-            (req: Request, res: Response) => {
-            }
-        );
-
         // Save a new level
         // Body must contain level data
         this.router.post(
             '/levels/save',
-            (req: Request, res: Response) => {
+            async (req: Request, res: Response) => {
+                await this.nonogramController.saveLevels(res, req.body.levels, req.body.userId);
             }
         );
-
+        
         // Update a level
         // Body must contain level data
         this.router.post(
@@ -46,6 +43,14 @@ export class NonogramRoutes extends Routes {
         // Body must contain delete date and level id, server will delete it in db after 20 days
         this.router.post(
             '/levels/delete',
+            (req: Request, res: Response) => {
+            }
+        );
+
+        // Get level by id
+        // If body contains a user id, return the user's progress
+        this.router.post(
+            '/levels/:id',
             (req: Request, res: Response) => {
             }
         );

@@ -1,9 +1,11 @@
+import { level } from "winston";
 import { Level } from "../../entities/nonogram";
 import { ILevelRepository } from "../../interfaces/repositories/nonogram";
 import { ILevelService } from "../../interfaces/services/nonogram";
-import { FormattedLevel } from "../../types";
+import { FormattedLevel, RawLevel } from "../../types";
 
 import { HandleError } from "../../utils/HandleError";
+import { ILevelUtils } from "../../interfaces/utils/nonogram";
 
 export type Filters = {
     page: number;
@@ -12,10 +14,12 @@ export type Filters = {
 };
 
 export class LevelService implements ILevelService {
-    private levelrepository: ILevelRepository;
+    private levelRepository: ILevelRepository;
+    private levelUtils: ILevelUtils;
 
-    constructor(levelRepository: ILevelRepository) {
-        this.levelrepository = levelRepository;
+    constructor(levelRepository: ILevelRepository, levelUtils: ILevelUtils) {
+        this.levelRepository = levelRepository;
+        this.levelUtils = levelUtils;
     }
 
 
@@ -26,16 +30,13 @@ export class LevelService implements ILevelService {
      * @param filters filters for levels
      * @returns 
      */
-    public async getLevels(filters: Filters, userId: bigint | null): Promise<FormattedLevel[]> {
+    public async getLevels(filters: Filters, userId: string | null): Promise<FormattedLevel[] | null> {
         try {
-            const levels: Level[] = await this.levelrepository.getLevels(filters, userId);
+            const levels: Level[] | null = await this.levelRepository.getLevels(filters, userId);
+            if (!levels || levels.length === 0) return null;
 
-            const formattedLevels: FormattedLevel[] = levels.map((level: Level) => {
-                return level.getProperties();
-            });
-
-            return formattedLevels;
-
+            const formattedLevels: FormattedLevel[] = levels.map((level: Level) => level.getProperties());
+            return formattedLevels.length > 0 ? formattedLevels : null;
         } catch(e: unknown) {
             HandleError.handle({
                 file: "LevelService",
@@ -44,7 +45,27 @@ export class LevelService implements ILevelService {
                 error: e
             });
 
-            return [];
+            return null;
+        }
+    }
+
+    
+    public async saveLevels(_levels: RawLevel[]): Promise<Level[]> {
+        try {
+            const levels: Level[] = _levels.map((level: RawLevel) => new Level(level, this.levelUtils));
+
+            await this.levelRepository.saveLevels(levels);
+
+            return levels;
+        } catch(e: unknown) {
+            HandleError.handle({
+                file: "LevelService",
+                fn: "saveLevels",
+                message: `_levels value: ${JSON.stringify(_levels)}`,
+                error: e
+            });
+
+            throw e;
         }
     }
 }

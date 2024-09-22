@@ -9,6 +9,8 @@ import { ILevelRepository } from '../../interfaces/repositories/nonogram';
 import type { DBLevel, RawScore } from '../../types';
 import { Cell } from '../../types/nonogram';
 
+import { ILevelUtils } from '../../interfaces/utils/nonogram';
+
 
 export type Filters = {
     page: number;
@@ -17,41 +19,11 @@ export type Filters = {
 };
 
 export class LevelRepository implements ILevelRepository {
-    /**
-     * Check if a cell is valid
-     * @param {any} cell
-     * @returns 
-     */
-    private isValidCell(cell: any): cell is Cell {
-        if (typeof cell !== "object" || cell === null) return false;
-        if (!("status" in cell) || typeof cell.status !== "number" || ![0, 1, 2].includes(cell.status)) return false;
-        if ("color" in cell && typeof cell.color !== "string") return false;
-        if (Object.keys(cell).length > 2) return false;
+    private levelUtils: ILevelUtils;
 
-        return true;
+    constructor(levelUtils: ILevelUtils) {
+        this.levelUtils = levelUtils;
     }
-
-
-
-    /**
-     * Check if a grid is valid
-     * @param {JsonValue} grid 
-     * @returns a boolean indicating if the grid is valid
-     */
-    private isValidGrid(grid: JsonValue): boolean {
-        if(!Array.isArray(grid)) return false;
-
-        for(const row of grid) {
-            if(!Array.isArray(row)) return false;
-
-            for(const cell of row) {
-                if(!this.isValidCell(cell)) return false;
-            }
-        }
-
-        return true;
-    }
-
 
     /**
      * Get formatted score
@@ -77,7 +49,7 @@ export class LevelRepository implements ILevelRepository {
      */
     private getFormattedLevel(level: DBLevel): Level {
         // Check if grid is valid
-        if(!this.isValidGrid(level.grid as JsonValue)) throw new Error("Invalid grid");
+        if(!this.levelUtils.isValidGrid(level.grid as JsonValue)) throw new Error("Invalid grid");
 
         const formattedLevel: Level = new Level({
             id: level.id,
@@ -88,7 +60,7 @@ export class LevelRepository implements ILevelRepository {
             createdAt: level.createdAt,
             updatedAt: level.updatedAt,
             deletedAt: level.deletedAt
-        });
+        }, this.levelUtils);
 
         if(!level.scores) return formattedLevel;
 
@@ -107,7 +79,7 @@ export class LevelRepository implements ILevelRepository {
      * @param {string} userId 
      * @returns {Promise<Level[]>} Levels
      */
-    public async getLevels(filters: Filters, userId: string | null): Promise<Level[]> {
+    public async getLevels(filters: Filters, userId: string | null): Promise<Level[] | null> {
         try {
             const { page, size, isCompleted } = filters;
 
@@ -142,6 +114,8 @@ export class LevelRepository implements ILevelRepository {
                 });
             });
 
+            if(!levels || levels.length == 0) return null;
+
             return levels;
 
         } catch(e: unknown) {
@@ -152,7 +126,51 @@ export class LevelRepository implements ILevelRepository {
                 error: e
             });
 
-            return [];
+            return null;
+        }
+    }
+
+
+
+    /**
+     * Get level by ID
+     * @param {number} id ID of the level
+     * @returns 
+     */
+    public async getLevelById(id: number): Promise<Level | null> {
+        try {
+            const level = await prisma.level.findUnique({
+                where: { id },
+                include: { scores: true }
+            });
+
+            if(!level) return null;
+
+            return this.getFormattedLevel(level as DBLevel);
+
+        } catch(e: unknown) {
+            HandleError.handle({
+                file: "LevelRepository",
+                fn: "getLevelById",
+                message: `id: ${id}`,
+                error: e
+            });
+
+            return null;
+        }
+    }
+
+
+
+    /**
+     * Save an array of levels
+     * @param {Level[]} levels 
+     */
+    public async saveLevels(levels: Level[]): Promise<void> {
+        if(levels.length == 0) throw new Error("No levels to save");
+
+        for(const l of levels) {
+            await l.save();
         }
     }
 }

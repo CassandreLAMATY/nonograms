@@ -7,8 +7,10 @@ import { ILevel } from '../../interfaces/entities/nonogram';
 import { Score } from '.';
 import type { FormattedLevel, RawLevel } from "../../types";
 import type { Cell } from '../../types/nonogram';
+import { ILevelUtils } from '../../interfaces/utils/nonogram';
 
 export class Level implements ILevel {
+    private levelUtils: ILevelUtils;
     private id?: number;
     private name: string;
     private grid: Cell[][];
@@ -19,23 +21,14 @@ export class Level implements ILevel {
     private deletedAt?: Date;
     private scores?: Score[];
 
-    constructor(level: RawLevel) {
+    constructor(level: RawLevel, levelUtils: ILevelUtils) {
+        this.levelUtils = levelUtils;
         // Required fields validation
         if(!level.name) throw new Error("Level name is required");
         if(!level.grid) throw new Error("Level grid is required");
 
         // Grid validation
-        if(level.grid.length === 0) 
-            throw new Error("Level grid must have at least one row");
-
-        if(level.grid[0].length === 0) 
-            throw new Error("Level grid must have at least one column");
-
-        if(level.grid.some(row => row.length !== level.grid![0].length)) 
-            throw new Error("Level grid must have the same number of columns in each row");
-
-        if(level.grid.some(row => row.some(cell => ![0, 1, 2].includes(cell.status))))
-            throw new Error(`Level grid contains invalid values`);
+        if(!this.levelUtils.isValidGrid(level.grid)) throw new Error("Invalid grid");
 
 
         // Required fields
@@ -76,7 +69,7 @@ export class Level implements ILevel {
         return {
             id: this.id,
             name: this.name,
-            grid: this.grid,
+            grid: JSON.stringify(this.grid),
             size: this.size,
             authorId: this.authorId,
             createdAt: this.createdAt,
@@ -94,20 +87,31 @@ export class Level implements ILevel {
      */
     public async save(): Promise<void> {
         try {
-            await prisma.level.create({
-                data: {
-                    name: this.name,
-                    grid: this.grid,
-                    size: this.size,
-                    authorId: this.authorId
-                }
-            });
+            await prisma.level
+                .create({
+                    data: {
+                        name: this.name,
+                        grid: this.grid,
+                        size: this.size,
+                        authorId: this.authorId
+                    }
+                })
+                .then((level) => {
+                    console.log(level)
+                    this.id = level.id;
+                    this.authorId = level.authorId ?? this.authorId;
+                    this.createdAt = level.createdAt;
+                    this.updatedAt = level.updatedAt;
+                });
+                
         } catch(e: unknown) {
             HandleError.handle({
                 file: "Level",
                 fn: "save",
                 error: e
             });
+
+            throw e;
         }
     }
 
