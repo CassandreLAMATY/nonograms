@@ -58,14 +58,7 @@ export class LevelService implements ILevelService {
 
             return levels;
         } catch(e: unknown) {
-            HandleError.handle({
-                file: "LevelService",
-                fn: "saveLevels",
-                message: `_levels value: ${JSON.stringify(_levels)}`,
-                error: e
-            });
-
-            throw e;
+            throw HandleError.ensureError(e);
         }
     }
 }

@@ -1,6 +1,5 @@
 import { JsonValue } from "@prisma/client/runtime/library";
 import { RawScore } from "./";
-import { Cell } from "./nonogram";
 
 export type FormattedLevel = {
     id?: number;

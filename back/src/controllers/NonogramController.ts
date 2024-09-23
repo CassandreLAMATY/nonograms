@@ -2,7 +2,6 @@ import { Level } from "../entities/nonogram";
 import { INonogramController } from "../interfaces/controllers";
 import { ILevelService } from "../interfaces/services/nonogram";
 import { ILevelUtils } from "../interfaces/utils/nonogram";
-import { Filters } from "../repositories/nonogram/LevelRepository";
 import { RawLevel } from "../types";
 import { HandleError } from "../utils/HandleError";
 import { Response } from "express";
@@ -106,7 +105,7 @@ export class NonogramController implements INonogramController {
                         if(r) savedLevels = r;
                     });
             } catch(e: unknown) {
-                throw new Error(`Failed to save levels: ${(e as Error).message}`);
+                throw e;
             }
 
             if(savedLevels.length === 0) {
@@ -131,8 +130,9 @@ export class NonogramController implements INonogramController {
             HandleError.handle({
                 file: "NonogramController",
                 fn: "saveLevels",
-                message: `_levels value: ${JSON.stringify(_levels)}`,
-                error: e
+                message: `_levels value: ${JSON.stringify(_levels)}
+_userId value: ${_userId}`,
+                error: HandleError.ensureError(e)
             });
 
             return res.status(500).json({ 
@@ -141,7 +141,8 @@ export class NonogramController implements INonogramController {
                     levels: _levels,
                     userId: _userId
                 },
-                error: e
+
+                error: HandleError.ensureError(e).message
             });
         }
     }

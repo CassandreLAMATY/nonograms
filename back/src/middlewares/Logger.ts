@@ -9,7 +9,11 @@ const customFormat: winston.Logform.Format = format.printf((info: winston.Logfor
         : chalk.white(message);
     const logTimestamp: string = chalk.gray(timestamp);
     
-    return `${chalk.bold('[')}${logTimestamp}${chalk.bold(']')} ${chalk.bold(logLevel)} - ${logMessage}`;
+    return `
+---
+${chalk.bold('[')}${chalk.italic(logTimestamp)}${chalk.bold(']')} ${chalk.bold(logLevel)} - ${logMessage}
+---
+    `;
 });
 
 const Logger: WinstonLogger = winston.createLogger({

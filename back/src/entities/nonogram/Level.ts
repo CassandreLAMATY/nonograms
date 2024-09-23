@@ -8,6 +8,7 @@ import { Score } from '.';
 import type { FormattedLevel, RawLevel } from "../../types";
 import type { Cell } from '../../types/nonogram';
 import { ILevelUtils } from '../../interfaces/utils/nonogram';
+import chalk from 'chalk';
 
 export class Level implements ILevel {
     private levelUtils: ILevelUtils;
@@ -101,17 +102,16 @@ export class Level implements ILevel {
                     this.id = level.id;
                     this.authorId = level.authorId ?? this.authorId;
                     this.createdAt = level.createdAt;
-                    this.updatedAt = level.updatedAt;
+                    this.updatedAt = level.updatedAt ?? this.updatedAt;
                 });
                 
         } catch(e: unknown) {
-            HandleError.handle({
-                file: "Level",
-                fn: "save",
-                error: e
-            });
+            const error: Error = HandleError.ensureError(e);
 
-            throw e;
+            // Adding file source and function name to the error message
+            error.message = chalk.bold(`\nLevel.save:`) + chalk.white(error.message);
+
+            throw error;
         }
     }
 

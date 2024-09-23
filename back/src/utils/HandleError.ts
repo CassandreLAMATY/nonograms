@@ -1,5 +1,6 @@
 import { Logger } from '../middlewares';  // Import du logger Winston
 import type { ErrorObject } from '../types';
+import chalk from 'chalk';
 
 export class HandleError {
     /**
@@ -30,10 +31,10 @@ export class HandleError {
         const errorInstance: Error = HandleError.ensureError(errorObject.error);
 
         const formattedError: string = [
-            errorObject.file ?? '',
-            errorObject.fn ? `.${errorObject.fn}` : '',
-            errorObject.message ? ` - ${errorObject.message}` : '',
-            `: ${errorInstance.message}`
+            errorObject.file ? `${chalk.bold(errorObject.file)}` : '',
+            errorObject.fn ? chalk.bold(`.${errorObject.fn}`) : '',
+            errorObject.message ? chalk.gray(`\n${errorObject.message}\n`) : '',
+            `${errorInstance.message}`
         ].filter(Boolean).join('');
 
         Logger.error(formattedError, { stack: errorInstance.stack });
